@@ -1,0 +1,32 @@
+name: Validate Terraform and Create PR
+
+on:
+  push:
+    branches:
+      - 'feature/**'
+
+jobs:
+  validate-and-pr:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.9.3  # Use a versão do Terraform que você deseja
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Create Pull Request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
+          gh pr create --base develop --head $BRANCH_NAME --title "Merge $BRANCH_NAME into develop" --body "Automated PR created from $BRANCH_NAME branch."

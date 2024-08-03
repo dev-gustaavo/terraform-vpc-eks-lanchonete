@@ -29,6 +29,9 @@ jobs:
     needs: validate-terraform
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
       - name: Install GitHub CLI
         run: sudo apt-get install gh
 
@@ -36,6 +39,9 @@ jobs:
         run: |
           git config --global user.email "gtbarbosa@live.com"
           git config --global user.name "gustavo-dev"
+
+      - name: Authenticate GitHub CLI
+        run: gh auth login --with-token
       
       - name: Create Pull Request
         env:

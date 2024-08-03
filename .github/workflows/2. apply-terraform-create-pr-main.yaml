@@ -1,0 +1,77 @@
+name: Aplica o Terraform e Cria o PR para a main
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  apply-terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.9.3
+
+      - name: Configure AWS Credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          echo "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
+          echo "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY"
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Identificação de apply ou destroy
+        id: read_config
+        run: |
+          FLAG=$(jq -r '.terraform.apply' aplicacao-infra.json)
+          echo "FLAG=$FLAG" >> $GITHUB_ENV
+
+      - name: Terraform Apply
+        if: ${{ env.FLAG == 'true' }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: terraform apply -auto-approve
+
+      - name: Terraform Destroy
+        if: ${{ env.FLAG == 'false' }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          TF_VAR_example: ${{ secrets.TF_VAR_EXAMPLE }}
+        run: terraform destroy -auto-approve
+
+  criacao-pr-main:
+    runs-on: ubuntu-latest
+    needs: apply-terraform
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "gtbarbosa@live.com"
+          git config --global user.name "gustavo-dev"
+
+      - name: Authenticate GitHub CLI
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+      
+      - name: Create Pull Request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
+          gh pr create --base main --head $BRANCH_NAME --title "PR da branch: $BRANCH_NAME para a branch main" --body "PR criado automaticamente. From $BRANCH_NAME to main."

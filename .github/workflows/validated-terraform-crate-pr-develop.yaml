@@ -6,6 +6,18 @@ on:
       - 'feature/**'
 
 jobs:
+  install-configure-github:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install GitHub CLI
+        run: sudo apt-get install gh
+
+      - name: Configure Git
+        run: |
+          git config --global user.email "gtbarbosa@live.com"
+          git config --global user.name "gustavo-dev"
+
   validate-terraform:
     runs-on: ubuntu-latest
 
@@ -29,6 +41,7 @@ jobs:
 
     steps:
       - name: Create Pull Request
+        if: ${{ success() }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |

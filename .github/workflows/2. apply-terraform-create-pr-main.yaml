@@ -37,13 +37,18 @@ jobs:
 
       - name: Terraform Apply
         if: ${{ env.FLAG == 'true' }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: terraform apply -auto-approve
 
       - name: Terraform Destroy
         if: ${{ env.FLAG == 'false' }}
-        run: terraform destroy -auto-approve
         env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           TF_VAR_example: ${{ secrets.TF_VAR_EXAMPLE }}
+        run: terraform destroy -auto-approve
 
   criacao-pr-main:
     runs-on: ubuntu-latest

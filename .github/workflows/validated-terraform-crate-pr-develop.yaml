@@ -6,7 +6,7 @@ on:
       - 'feature/**'
 
 jobs:
-  validate-and-pr:
+  validate-terraform:
     runs-on: ubuntu-latest
 
     steps:
@@ -24,6 +24,10 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+  create-pr-develop:
+    runs-on: ubuntu-latest
+
+    steps:
       - name: Create Pull Request
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

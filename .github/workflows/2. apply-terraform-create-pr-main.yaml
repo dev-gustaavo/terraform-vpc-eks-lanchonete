@@ -24,7 +24,7 @@ jobs:
       - name: Identificação de apply ou destroy
         id: read_config
         run: |
-          FLAG=$(jq r '.terraform.apply' aplicacao-infra.json)
+          FLAG=$(jq -r '.terraform.apply' aplicacao-infra.json)
           echo "FLAG=$FLAG" >> $GITHUB_ENV
 
       - name: Terraform Apply

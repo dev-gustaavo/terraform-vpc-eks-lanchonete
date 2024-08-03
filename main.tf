@@ -3,7 +3,7 @@ provider "aws" {
 }
 
 resource "aws_vpc" "vpc-eks" {
-  cid_block = var.vpc_cidr
+  cidr_block = var.vpc_cidr
 
   tags = {
     Name = "${var.cluster_name}-vpc"

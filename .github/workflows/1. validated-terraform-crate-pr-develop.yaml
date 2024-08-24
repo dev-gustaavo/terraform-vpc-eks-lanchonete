@@ -10,7 +10,7 @@ jobs:
     name: "Terraform"
     uses: dev-gustaavo/terraform-reusable/.github/workflows/1-validated-terraform-crate-pr-develop.yaml@main
     with:
-      pr_branch_name: 'xpto'
+      pr_branch_name: 'develop'
     secrets:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

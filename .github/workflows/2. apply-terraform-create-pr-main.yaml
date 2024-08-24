@@ -7,7 +7,7 @@ on:
 
 jobs:
   apply-terraform:
-    uses: dev-gustaavo/terraform-reusable/.github/workflows/2-apply-terraform-create-pr-main.yaml
+    uses: dev-gustaavo/terraform-reusable/.github/workflows/2-apply-terraform-create-pr-main.yaml@main
     with:
       pr_branch_name: 'main'
       terraform_command: |

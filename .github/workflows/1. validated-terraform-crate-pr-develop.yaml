@@ -7,6 +7,6 @@ on:
 
 jobs:
   validacao-terraform:
-    uses: dev-gustaavo/terraform-reusable/.github/workflows/1-validated-terraform-crate-pr-develop.yaml
+    uses: dev-gustaavo/terraform-reusable/.github/workflows/1-validated-terraform-crate-pr-develop.yaml@main
     with:
       pr_branch_name: 'develop'

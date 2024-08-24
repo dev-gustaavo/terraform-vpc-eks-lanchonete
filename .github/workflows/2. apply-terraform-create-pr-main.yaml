@@ -7,61 +7,8 @@ on:
 
 jobs:
   apply-terraform:
-    runs-on: ubuntu-latest
-
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-
-      
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.9.3
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Identificação de apply ou destroy
-        id: read_config
-        run: |
-          FLAG=$(jq -r '.terraform.apply' aplicacao-infra.json)
-          echo "FLAG=$FLAG" >> $GITHUB_ENV
-
-      - name: Terraform Apply
-        if: ${{ env.FLAG == 'true' }}
-        run: terraform apply -auto-approve
-
-      - name: Terraform Destroy
-        if: ${{ env.FLAG == 'false' }}
-        run: terraform destroy -auto-approve
-
-  criacao-pr-main:
-    runs-on: ubuntu-latest
-    needs: apply-terraform
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install GitHub CLI
-        run: sudo apt-get install gh
-
-      - name: Configure Git
-        run: |
-          git config --global user.email "gtbarbosa@live.com"
-          git config --global user.name "gustavo-dev"
-
-      - name: Authenticate GitHub CLI
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
-      
-      - name: Create Pull Request
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          BRANCH_NAME=$(echo "${{ github.ref }}" | sed 's/refs\/heads\///')
-          gh pr create --base main --head $BRANCH_NAME --title "PR da branch: $BRANCH_NAME para a branch main" --body "PR criado automaticamente. From $BRANCH_NAME to main."
+    uses: dev-gustaavo/terraform-reusable/.github/workflows/2-apply-terraform-create-pr-main.yaml
+    with:
+      pr_branch_name: 'main'
+      terraform_command: |
+        $(jq -r '.terraform.apply' aplicacao-infra.json) == 'true' && echo "apply" || echo "destroy"

@@ -12,3 +12,7 @@ jobs:
       pr_branch_name: 'main'
       terraform_command: |
         $(jq -r '.terraform.apply' aplicacao-infra.json) == 'true' && echo "apply" || echo "destroy"
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
